@@ -4536,14 +4536,6 @@ var $author$project$Types$UserInputMsg = function (a) {
 var $author$project$Types$ViewMsg = function (a) {
 	return {$: 'ViewMsg', a: a};
 };
-var $elm$core$Basics$apL = F2(
-	function (f, x) {
-		return f(x);
-	});
-var $elm$core$Basics$apR = F2(
-	function (x, f) {
-		return f(x);
-	});
 var $elm$core$Result$Err = function (a) {
 	return {$: 'Err', a: a};
 };
@@ -4805,6 +4797,14 @@ var $elm$core$Elm$JsArray$initialize = _JsArray_initialize;
 var $elm$core$Array$Leaf = function (a) {
 	return {$: 'Leaf', a: a};
 };
+var $elm$core$Basics$apL = F2(
+	function (f, x) {
+		return f(x);
+	});
+var $elm$core$Basics$apR = F2(
+	function (x, f) {
+		return f(x);
+	});
 var $elm$core$Basics$eq = _Utils_equal;
 var $elm$core$Basics$floor = _Basics_floor;
 var $elm$core$Elm$JsArray$length = _JsArray_length;
@@ -4931,6 +4931,7 @@ var $elm$core$Result$isOk = function (result) {
 		return false;
 	}
 };
+var $elm$json$Json$Decode$andThen = _Json_andThen;
 var $elm$json$Json$Decode$value = _Json_decodeValue;
 var $author$project$Main$audioPortFromJS = _Platform_incomingPort('audioPortFromJS', $elm$json$Json$Decode$value);
 var $elm$core$Basics$identity = function (x) {
@@ -5077,6 +5078,42 @@ var $author$project$Audio$cmdMap = F2(
 		}
 	});
 var $author$project$Types$LoadingAudio = {$: 'LoadingAudio'};
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$float = _Json_decodeFloat;
+var $elm$json$Json$Decode$int = _Json_decodeInt;
+var $elm$json$Json$Decode$map3 = _Json_map3;
+var $author$project$Types$decodeUserConfig = A4(
+	$elm$json$Json$Decode$map3,
+	F3(
+		function (n, k, t) {
+			return {k: k, n: n, t: t};
+		}),
+	A2($elm$json$Json$Decode$field, 'n', $elm$json$Json$Decode$int),
+	A2($elm$json$Json$Decode$field, 'k', $elm$json$Json$Decode$int),
+	A2($elm$json$Json$Decode$field, 't', $elm$json$Json$Decode$float));
+var $elm$json$Json$Decode$map2 = _Json_map2;
+var $elm$json$Json$Decode$map4 = _Json_map4;
+var $author$project$Types$decodeScore = function () {
+	var decodeSoundSquarePair = A3(
+		$elm$json$Json$Decode$map2,
+		F2(
+			function (sound, square) {
+				return {sound: sound, square: square};
+			}),
+		A2($elm$json$Json$Decode$field, 'sound', $elm$json$Json$Decode$int),
+		A2($elm$json$Json$Decode$field, 'square', $elm$json$Json$Decode$int));
+	return A5(
+		$elm$json$Json$Decode$map4,
+		F4(
+			function (uc, tc, fp, fn) {
+				return {falseNegativeResponseCount: fn, falsePositiveResponseCount: fp, stimulusTestCount: tc, userConfig: uc};
+			}),
+		A2($elm$json$Json$Decode$field, 'userConfig', $author$project$Types$decodeUserConfig),
+		A2($elm$json$Json$Decode$field, 'stimulusTestCount', decodeSoundSquarePair),
+		A2($elm$json$Json$Decode$field, 'falsePositiveResponseCount', decodeSoundSquarePair),
+		A2($elm$json$Json$Decode$field, 'falseNegativeResponseCount', decodeSoundSquarePair));
+}();
+var $elm$json$Json$Decode$decodeString = _Json_runOnString;
 var $author$project$Utils$gridSideSquareCount = 3;
 var $avh4$elm_color$Color$RgbaSpace = F4(
 	function (a, b, c, d) {
@@ -5112,6 +5149,7 @@ var $author$project$GridCanvas$init = function (renderSettings) {
 		state: $author$project$GridCanvas$IdleAnimation(0)
 	};
 };
+var $elm$json$Json$Decode$list = _Json_decodeList;
 var $elm$core$Basics$modBy = _Basics_modBy;
 var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
 var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
@@ -5128,31 +5166,52 @@ var $avh4$elm_color$Color$rgb255 = F3(
 			$avh4$elm_color$Color$scaleFrom255(b),
 			1.0);
 	});
-var $author$project$Main$defaultModel = {
-	gridModel: $author$project$GridCanvas$init(
-		{
-			activeSquareColor: A3($avh4$elm_color$Color$rgb255, 181, 137, 0),
-			bgColor: A3($avh4$elm_color$Color$rgb255, 0, 43, 54),
-			domId: 'grid-canvas',
-			idleColorCycleFn: function (frameCount) {
-				return A3(
-					$avh4$elm_color$Color$hsl,
-					A2($elm$core$Basics$modBy, 500, frameCount) / 500,
-					0.9,
-					0.4);
-			},
-			inactiveSquareColor: A3($avh4$elm_color$Color$rgb255, 88, 110, 117),
-			pxSpacing: 5,
-			pxWidth: 400,
-			rowColCount: $author$project$Utils$gridSideSquareCount
-		}),
-	scores: _List_Nil,
-	soundModel: $author$project$Sound$newSoundModel,
-	state: $author$project$Types$LoadingAudio,
-	stimulusResponseStack: $elm$core$Array$empty,
-	stimulusStack: $elm$core$Array$empty,
-	userConfig: {k: 20, n: 2, t: 1.0}
-};
+var $elm$core$Result$withDefault = F2(
+	function (def, result) {
+		if (result.$ === 'Ok') {
+			var a = result.a;
+			return a;
+		} else {
+			return def;
+		}
+	});
+var $author$project$Main$defaultModel = F2(
+	function (userConfigStr, scoresStr) {
+		return {
+			gridModel: $author$project$GridCanvas$init(
+				{
+					activeSquareColor: A3($avh4$elm_color$Color$rgb255, 181, 137, 0),
+					bgColor: A3($avh4$elm_color$Color$rgb255, 0, 43, 54),
+					domId: 'grid-canvas',
+					idleColorCycleFn: function (frameCount) {
+						return A3(
+							$avh4$elm_color$Color$hsl,
+							A2($elm$core$Basics$modBy, 500, frameCount) / 500,
+							0.9,
+							0.4);
+					},
+					inactiveSquareColor: A3($avh4$elm_color$Color$rgb255, 88, 110, 117),
+					pxSpacing: 5,
+					pxWidth: 400,
+					rowColCount: $author$project$Utils$gridSideSquareCount
+				}),
+			scores: A2(
+				$elm$core$Result$withDefault,
+				_List_Nil,
+				A2(
+					$elm$json$Json$Decode$decodeString,
+					$elm$json$Json$Decode$list($author$project$Types$decodeScore),
+					scoresStr)),
+			soundModel: $author$project$Sound$newSoundModel,
+			state: $author$project$Types$LoadingAudio,
+			stimulusResponseStack: $elm$core$Array$empty,
+			stimulusStack: $elm$core$Array$empty,
+			userConfig: A2(
+				$elm$core$Result$withDefault,
+				{k: 20, n: 2, t: 1.0},
+				A2($elm$json$Json$Decode$decodeString, $author$project$Types$decodeUserConfig, userConfigStr))
+		};
+	});
 var $author$project$Audio$UserMsg = function (a) {
 	return {$: 'UserMsg', a: a};
 };
@@ -5170,7 +5229,6 @@ var $elm$core$Basics$composeR = F3(
 			f(x));
 	});
 var $elm$json$Json$Decode$map = _Json_map1;
-var $elm$json$Json$Decode$map2 = _Json_map2;
 var $elm$json$Json$Decode$succeed = _Json_succeed;
 var $elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 	switch (handler.$) {
@@ -6624,7 +6682,6 @@ var $author$project$Audio$getNotifyAudioCmd = function (audioCmd) {
 						A2($elm$core$List$map, $author$project$Audio$getNotifyAudioCmd, list))));
 	}
 };
-var $elm$core$Debug$log = _Debug_log;
 var $author$project$Audio$maybeMax = F2(
 	function (x, y) {
 		var _v0 = _Utils_Tuple2(x, y);
@@ -6695,12 +6752,9 @@ var $author$project$Audio$encodeAudioCmd = F2(
 					model,
 					{
 						notifyLoadFinished: A2(
-							$elm$core$Debug$log,
-							'getNotifyAudioCmd',
-							A2(
-								$author$project$Audio$maybeMax,
-								model.notifyLoadFinished,
-								$author$project$Audio$getNotifyAudioCmd(audioCmd))),
+							$author$project$Audio$maybeMax,
+							model.notifyLoadFinished,
+							$author$project$Audio$getNotifyAudioCmd(audioCmd)),
 						pendingRequests: A2(
 							$elm$core$Dict$union,
 							model.pendingRequests,
@@ -6777,11 +6831,9 @@ var $author$project$Audio$AudioLoadSuccess = function (a) {
 var $author$project$Audio$InitAudioContext = function (a) {
 	return {$: 'InitAudioContext', a: a};
 };
-var $elm$json$Json$Decode$andThen = _Json_andThen;
 var $author$project$Audio$BufferId = function (a) {
 	return {$: 'BufferId', a: a};
 };
-var $elm$json$Json$Decode$int = _Json_decodeInt;
 var $author$project$Audio$decodeBufferId = A2($elm$json$Json$Decode$map, $author$project$Audio$BufferId, $elm$json$Json$Decode$int);
 var $author$project$Audio$FailedToDecode = {$: 'FailedToDecode'};
 var $author$project$Audio$NetworkError = {$: 'NetworkError'};
@@ -6802,9 +6854,6 @@ var $author$project$Audio$decodeLoadError = A2(
 		}
 	},
 	$elm$json$Json$Decode$string);
-var $elm$json$Json$Decode$field = _Json_decodeField;
-var $elm$json$Json$Decode$float = _Json_decodeFloat;
-var $elm$json$Json$Decode$map3 = _Json_map3;
 var $ianmackenzie$elm_units$Duration$seconds = function (numSeconds) {
 	return $ianmackenzie$elm_units$Quantity$Quantity(numSeconds);
 };
@@ -7214,6 +7263,7 @@ var $author$project$Audio$elementWithAudio = A2(
 				}
 			});
 	});
+var $elm$json$Json$Decode$index = _Json_decodeIndex;
 var $author$project$Sound$letters = A2(
 	$mgold$elm_nonempty_list$List$Nonempty$Nonempty,
 	'h',
@@ -7966,6 +8016,72 @@ var $author$project$Types$UserStimulusResponse = function (a) {
 	return {$: 'UserStimulusResponse', a: a};
 };
 var $author$project$Audio$cmdNone = $author$project$Audio$AudioCmdGroup(_List_Nil);
+var $author$project$Types$encodeUserConfig = function (_v0) {
+	var n = _v0.n;
+	var k = _v0.k;
+	var t = _v0.t;
+	return $elm$json$Json$Encode$object(
+		_List_fromArray(
+			[
+				_Utils_Tuple2(
+				'n',
+				$elm$json$Json$Encode$int(n)),
+				_Utils_Tuple2(
+				'k',
+				$elm$json$Json$Encode$int(k)),
+				_Utils_Tuple2(
+				't',
+				$elm$json$Json$Encode$float(t))
+			]));
+};
+var $author$project$Types$encodeScore = function (_v0) {
+	var userConfig = _v0.userConfig;
+	var stimulusTestCount = _v0.stimulusTestCount;
+	var falsePositiveResponseCount = _v0.falsePositiveResponseCount;
+	var falseNegativeResponseCount = _v0.falseNegativeResponseCount;
+	var encodeSoundSquarePair = function (_v1) {
+		var sound = _v1.sound;
+		var square = _v1.square;
+		return $elm$json$Json$Encode$object(
+			_List_fromArray(
+				[
+					_Utils_Tuple2(
+					'sound',
+					$elm$json$Json$Encode$int(sound)),
+					_Utils_Tuple2(
+					'square',
+					$elm$json$Json$Encode$int(square))
+				]));
+	};
+	return $elm$json$Json$Encode$object(
+		_List_fromArray(
+			[
+				_Utils_Tuple2(
+				'userConfig',
+				$author$project$Types$encodeUserConfig(userConfig)),
+				_Utils_Tuple2(
+				'stimulusTestCount',
+				encodeSoundSquarePair(stimulusTestCount)),
+				_Utils_Tuple2(
+				'falsePositiveResponseCount',
+				encodeSoundSquarePair(falsePositiveResponseCount)),
+				_Utils_Tuple2(
+				'falseNegativeResponseCount',
+				encodeSoundSquarePair(falseNegativeResponseCount))
+			]));
+};
+var $author$project$Main$encodeStoreCookie = F2(
+	function (key, value) {
+		return $elm$json$Json$Encode$object(
+			_List_fromArray(
+				[
+					_Utils_Tuple2(
+					'key',
+					$elm$json$Json$Encode$string(key)),
+					_Utils_Tuple2('value', value)
+				]));
+	});
+var $elm$core$Debug$log = _Debug_log;
 var $elm$core$Debug$toString = _Debug_toString;
 var $author$project$Utils$genFinalScore = function (_v0) {
 	var userConfig = _v0.userConfig;
@@ -8054,10 +8170,51 @@ var $author$project$Utils$genFinalScore = function (_v0) {
 			_Utils_Tuple2(stimulusStackList, stimulusStackListNBack)),
 		{falseNegativeResponseCount: falseNegativeResponseCount, falsePositiveResponseCount: falsePositiveResponseCount, stimulusTestCount: stimulusTestCount, userConfig: userConfig});
 };
+var $elm$core$Bitwise$and = _Bitwise_and;
+var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
+var $elm$core$Array$bitMask = 4294967295 >>> (32 - $elm$core$Array$shiftStep);
+var $elm$core$Basics$ge = _Utils_ge;
+var $elm$core$Elm$JsArray$unsafeGet = _JsArray_unsafeGet;
+var $elm$core$Array$getHelp = F3(
+	function (shift, index, tree) {
+		getHelp:
+		while (true) {
+			var pos = $elm$core$Array$bitMask & (index >>> shift);
+			var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, pos, tree);
+			if (_v0.$ === 'SubTree') {
+				var subTree = _v0.a;
+				var $temp$shift = shift - $elm$core$Array$shiftStep,
+					$temp$index = index,
+					$temp$tree = subTree;
+				shift = $temp$shift;
+				index = $temp$index;
+				tree = $temp$tree;
+				continue getHelp;
+			} else {
+				var values = _v0.a;
+				return A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, values);
+			}
+		}
+	});
+var $elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
+var $elm$core$Array$tailIndex = function (len) {
+	return (len >>> 5) << 5;
+};
+var $elm$core$Array$get = F2(
+	function (index, _v0) {
+		var len = _v0.a;
+		var startShift = _v0.b;
+		var tree = _v0.c;
+		var tail = _v0.d;
+		return ((index < 0) || (_Utils_cmp(index, len) > -1)) ? $elm$core$Maybe$Nothing : ((_Utils_cmp(
+			index,
+			$elm$core$Array$tailIndex(len)) > -1) ? $elm$core$Maybe$Just(
+			A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, tail)) : $elm$core$Maybe$Just(
+			A3($elm$core$Array$getHelp, startShift, index, tree)));
+	});
 var $elm$random$Random$Generator = function (a) {
 	return {$: 'Generator', a: a};
 };
-var $elm$core$Bitwise$and = _Bitwise_and;
 var $elm$core$Basics$negate = function (n) {
 	return -n;
 };
@@ -8065,7 +8222,6 @@ var $elm$random$Random$Seed = F2(
 	function (a, b) {
 		return {$: 'Seed', a: a, b: b};
 	});
-var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
 var $elm$random$Random$next = function (_v0) {
 	var state0 = _v0.a;
 	var incr = _v0.b;
@@ -8109,6 +8265,10 @@ var $elm$random$Random$int = F2(
 				}
 			});
 	});
+var $elm$core$Array$length = function (_v0) {
+	var len = _v0.a;
+	return len;
+};
 var $elm$random$Random$map2 = F3(
 	function (func, _v0, _v1) {
 		var genA = _v0.a;
@@ -8125,6 +8285,42 @@ var $elm$random$Random$map2 = F3(
 					A2(func, a, b),
 					seed2);
 			});
+	});
+var $elm$core$List$sortWith = _List_sortWith;
+var $mgold$elm_nonempty_list$List$Nonempty$insertWith = F3(
+	function (cmp, hd, aList) {
+		if (aList.b) {
+			var x = aList.a;
+			var xs = aList.b;
+			return _Utils_eq(
+				A2(cmp, x, hd),
+				$elm$core$Basics$LT) ? A2(
+				$mgold$elm_nonempty_list$List$Nonempty$Nonempty,
+				x,
+				A2(
+					$elm$core$List$sortWith,
+					cmp,
+					A2($elm$core$List$cons, hd, xs))) : A2($mgold$elm_nonempty_list$List$Nonempty$Nonempty, hd, aList);
+		} else {
+			return A2($mgold$elm_nonempty_list$List$Nonempty$Nonempty, hd, _List_Nil);
+		}
+	});
+var $elm$core$List$sortBy = _List_sortBy;
+var $mgold$elm_nonempty_list$List$Nonempty$sortBy = F2(
+	function (f, _v0) {
+		var x = _v0.a;
+		var xs = _v0.b;
+		return A3(
+			$mgold$elm_nonempty_list$List$Nonempty$insertWith,
+			F2(
+				function (a, b) {
+					return A2(
+						$elm$core$Basics$compare,
+						f(a),
+						f(b));
+				}),
+			x,
+			A2($elm$core$List$sortBy, f, xs));
 	});
 var $mgold$elm_nonempty_list$List$Nonempty$tail = function (_v0) {
 	var x = _v0.a;
@@ -8217,20 +8413,77 @@ var $elm$random$Random$uniform = F2(
 			$elm$random$Random$addOne(value),
 			A2($elm$core$List$map, $elm$random$Random$addOne, valueList));
 	});
-var $author$project$Utils$genNextStimulus = function () {
-	var soundGen = A2(
-		$elm$random$Random$uniform,
-		$mgold$elm_nonempty_list$List$Nonempty$head($author$project$Sound$letters),
-		$mgold$elm_nonempty_list$List$Nonempty$tail($author$project$Sound$letters));
-	var rng = A2($elm$random$Random$int, 0, $author$project$Utils$gridSideSquareCount - 1);
-	var squareGen = A3(
-		$elm$random$Random$map2,
-		F2(
-			function (row, col) {
-				return {col: col, row: row};
-			}),
-		rng,
-		rng);
+var $author$project$Utils$genNextStimulus = function (_v0) {
+	var userConfig = _v0.userConfig;
+	var stimulusStack = _v0.stimulusStack;
+	var stimulusStackLen = $elm$core$Array$length(stimulusStack);
+	var rng = A2($elm$core$List$range, 0, $author$project$Utils$gridSideSquareCount - 1);
+	var getStimulus = function (i) {
+		return A2($elm$core$Array$get, (stimulusStackLen - i) - 1, stimulusStack);
+	};
+	var _v1 = userConfig;
+	var n = _v1.n;
+	var matchStimulusA = getStimulus(n - 1);
+	var _v2 = function () {
+		if (matchStimulusA.$ === 'Just') {
+			var matchStimulus = matchStimulusA.a;
+			var squareWeight = 1.2;
+			var soundWeight = 1.2;
+			var lttrz = A2(
+				$mgold$elm_nonempty_list$List$Nonempty$sortBy,
+				function (l) {
+					return _Utils_eq(l, matchStimulus.sound) ? 0 : 1;
+				},
+				$author$project$Sound$letters);
+			var defaultWeight = $elm$core$List$map(
+				function (x) {
+					return _Utils_Tuple2(1, x);
+				});
+			var allSquares = A3(
+				$elm$core$List$map2,
+				F2(
+					function (row, col) {
+						return {col: col, row: row};
+					}),
+				rng,
+				rng);
+			return _Utils_Tuple2(
+				A2(
+					$elm$random$Random$weighted,
+					_Utils_Tuple2(
+						A2($elm$core$Debug$log, 'squareWeight', squareWeight),
+						matchStimulus.squarePos),
+					defaultWeight(
+						A2(
+							$elm$core$List$filter,
+							$elm$core$Basics$neq(matchStimulus.squarePos),
+							allSquares))),
+				A2(
+					$elm$random$Random$weighted,
+					_Utils_Tuple2(
+						A2($elm$core$Debug$log, 'soundWeight', soundWeight),
+						$mgold$elm_nonempty_list$List$Nonempty$head(lttrz)),
+					defaultWeight(
+						$mgold$elm_nonempty_list$List$Nonempty$tail($author$project$Sound$letters))));
+		} else {
+			var x = A2($elm$random$Random$int, 0, $author$project$Utils$gridSideSquareCount - 1);
+			return _Utils_Tuple2(
+				A3(
+					$elm$random$Random$map2,
+					F2(
+						function (row, col) {
+							return {col: col, row: row};
+						}),
+					x,
+					x),
+				A2(
+					$elm$random$Random$uniform,
+					$mgold$elm_nonempty_list$List$Nonempty$head($author$project$Sound$letters),
+					$mgold$elm_nonempty_list$List$Nonempty$tail($author$project$Sound$letters)));
+		}
+	}();
+	var squareGen = _v2.a;
+	var soundGen = _v2.b;
 	return A3(
 		$elm$random$Random$map2,
 		F2(
@@ -8239,7 +8492,7 @@ var $author$project$Utils$genNextStimulus = function () {
 			}),
 		squareGen,
 		soundGen);
-}();
+};
 var $elm$random$Random$Generate = function (a) {
 	return {$: 'Generate', a: a};
 };
@@ -8301,46 +8554,6 @@ var $elm$random$Random$generate = F2(
 			$elm$random$Random$Generate(
 				A2($elm$random$Random$map, tagger, generator)));
 	});
-var $elm$core$Array$bitMask = 4294967295 >>> (32 - $elm$core$Array$shiftStep);
-var $elm$core$Basics$ge = _Utils_ge;
-var $elm$core$Elm$JsArray$unsafeGet = _JsArray_unsafeGet;
-var $elm$core$Array$getHelp = F3(
-	function (shift, index, tree) {
-		getHelp:
-		while (true) {
-			var pos = $elm$core$Array$bitMask & (index >>> shift);
-			var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, pos, tree);
-			if (_v0.$ === 'SubTree') {
-				var subTree = _v0.a;
-				var $temp$shift = shift - $elm$core$Array$shiftStep,
-					$temp$index = index,
-					$temp$tree = subTree;
-				shift = $temp$shift;
-				index = $temp$index;
-				tree = $temp$tree;
-				continue getHelp;
-			} else {
-				var values = _v0.a;
-				return A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, values);
-			}
-		}
-	});
-var $elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
-var $elm$core$Array$tailIndex = function (len) {
-	return (len >>> 5) << 5;
-};
-var $elm$core$Array$get = F2(
-	function (index, _v0) {
-		var len = _v0.a;
-		var startShift = _v0.b;
-		var tree = _v0.c;
-		var tail = _v0.d;
-		return ((index < 0) || (_Utils_cmp(index, len) > -1)) ? $elm$core$Maybe$Nothing : ((_Utils_cmp(
-			index,
-			$elm$core$Array$tailIndex(len)) > -1) ? $elm$core$Maybe$Just(
-			A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, tail)) : $elm$core$Maybe$Just(
-			A3($elm$core$Array$getHelp, startShift, index, tree)));
-	});
 var $author$project$GridCanvas$incFrameCount = function (model) {
 	var _v0 = model.state;
 	if (_v0.$ === 'IdleAnimation') {
@@ -8362,10 +8575,6 @@ var $author$project$Sound$insertSound = F2(
 				sounds: A3($elm$core$Dict$insert, sound.name, sound, model.sounds)
 			});
 	});
-var $elm$core$Array$length = function (_v0) {
-	var len = _v0.a;
-	return len;
-};
 var $elm$core$Maybe$map = F2(
 	function (f, maybe) {
 		if (maybe.$ === 'Just') {
@@ -8518,6 +8727,7 @@ var $elm$core$Array$set = F3(
 			A4($elm$core$Array$setHelp, startShift, index, value, tree),
 			tail));
 	});
+var $author$project$Main$storeCookies = _Platform_outgoingPort('storeCookies', $elm$core$Basics$identity);
 var $author$project$GridCanvas$Empty = {$: 'Empty'};
 var $author$project$GridCanvas$toEmpty = function (model) {
 	return _Utils_update(
@@ -8589,7 +8799,7 @@ var $author$project$Main$update = F2(
 					function (stimulus) {
 						return {stimulus: stimulus, time: t};
 					},
-					$author$project$Utils$genNextStimulus));
+					$author$project$Utils$genNextStimulus(model)));
 		};
 		var _default = function (m) {
 			return _Utils_Tuple3(m, $elm$core$Platform$Cmd$none, $author$project$Audio$cmdNone);
@@ -8676,13 +8886,23 @@ var $author$project$Main$update = F2(
 							} else {
 								var _v7 = _v0.a;
 								var viewMsg = _v0.b.a.a;
+								var updateCookie = function (m) {
+									return _Utils_Tuple3(
+										m,
+										$author$project$Main$storeCookies(
+											A2(
+												$author$project$Main$encodeStoreCookie,
+												'userConfig',
+												$author$project$Types$encodeUserConfig(m.userConfig))),
+										$author$project$Audio$cmdNone);
+								};
 								var _v8 = model;
 								var gridModel = _v8.gridModel;
 								var userConfig = _v8.userConfig;
 								switch (viewMsg.$) {
 									case 'SetN':
 										var n = viewMsg.a;
-										return _default(
+										return updateCookie(
 											_Utils_update(
 												model,
 												{
@@ -8694,7 +8914,7 @@ var $author$project$Main$update = F2(
 												}));
 									case 'SetK':
 										var k = viewMsg.a;
-										return _default(
+										return updateCookie(
 											_Utils_update(
 												model,
 												{
@@ -8706,7 +8926,7 @@ var $author$project$Main$update = F2(
 												}));
 									case 'SetT':
 										var t = viewMsg.a;
-										return _default(
+										return updateCookie(
 											_Utils_update(
 												model,
 												{
@@ -8820,17 +9040,36 @@ var $author$project$Main$update = F2(
 								if (_v0.b.a.$ === 'Tick') {
 									var _v18 = _v0.a.a;
 									var t = _v0.b.a.a;
-									return (!$author$project$Utils$remainingStimuli(model)) ? A2(
-										queueViewMsg,
-										_Utils_update(
-											model,
-											{
-												scores: A2(
-													$elm$core$List$cons,
-													$author$project$Utils$genFinalScore(model),
-													model.scores)
-											}),
-										$author$project$Types$Stop) : _Utils_Tuple3(
+									var updateCookie = function (_v19) {
+										var m = _v19.a;
+										var cmd = _v19.b;
+										var aCmd = _v19.c;
+										return _Utils_Tuple3(
+											m,
+											$elm$core$Platform$Cmd$batch(
+												_List_fromArray(
+													[
+														cmd,
+														$author$project$Main$storeCookies(
+														A2(
+															$author$project$Main$encodeStoreCookie,
+															'scores',
+															A2($elm$json$Json$Encode$list, $author$project$Types$encodeScore, m.scores)))
+													])),
+											aCmd);
+									};
+									return (!$author$project$Utils$remainingStimuli(model)) ? updateCookie(
+										A2(
+											queueViewMsg,
+											_Utils_update(
+												model,
+												{
+													scores: A2(
+														$elm$core$List$cons,
+														$author$project$Utils$genFinalScore(model),
+														model.scores)
+												}),
+											$author$project$Types$Stop)) : _Utils_Tuple3(
 										model,
 										nextStimulusCmd(t),
 										$author$project$Audio$cmdNone);
@@ -8889,6 +9128,14 @@ var $author$project$Main$update = F2(
 		}
 		return _default(model);
 	});
+var $elm$virtual_dom$VirtualDom$attribute = F2(
+	function (key, value) {
+		return A2(
+			_VirtualDom_attribute,
+			_VirtualDom_noOnOrFormAction(key),
+			_VirtualDom_noJavaScriptOrHtmlUri(value));
+	});
+var $elm$html$Html$Attributes$attribute = $elm$virtual_dom$VirtualDom$attribute;
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $joakin$elm_canvas$Canvas$Internal$Canvas$Fill = function (a) {
 	return {$: 'Fill', a: a};
@@ -9900,14 +10147,6 @@ var $joakin$elm_canvas$Canvas$render = function (entities) {
 		$joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$empty,
 		entities);
 };
-var $elm$virtual_dom$VirtualDom$attribute = F2(
-	function (key, value) {
-		return A2(
-			_VirtualDom_attribute,
-			_VirtualDom_noOnOrFormAction(key),
-			_VirtualDom_noJavaScriptOrHtmlUri(value));
-	});
-var $elm$html$Html$Attributes$attribute = $elm$virtual_dom$VirtualDom$attribute;
 var $joakin$elm_canvas$Canvas$Internal$Texture$TImage = function (a) {
 	return {$: 'TImage', a: a};
 };
@@ -10096,7 +10335,6 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
 };
-var $elm$html$Html$p = _VirtualDom_node('p');
 var $elm$core$List$any = F2(
 	function (isOkay, list) {
 		any:
@@ -10343,59 +10581,9 @@ var $myrho$elm_round$Round$round = $myrho$elm_round$Round$roundFun(
 				}
 			}
 		}));
+var $elm$html$Html$span = _VirtualDom_node('span');
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $author$project$View$scoreView = function (_v0) {
-	var userConfig = _v0.userConfig;
-	var stimulusTestCount = _v0.stimulusTestCount;
-	var falsePositiveResponseCount = _v0.falsePositiveResponseCount;
-	var falseNegativeResponseCount = _v0.falseNegativeResponseCount;
-	var total = function (_v2) {
-		var sound = _v2.sound;
-		var square = _v2.square;
-		return sound + square;
-	};
-	var totalFalse = total(falsePositiveResponseCount) + total(falseNegativeResponseCount);
-	var totalStimulus = total(stimulusTestCount);
-	var totalCorrectResponses = totalStimulus - total(falseNegativeResponseCount);
-	var totalResponses = totalCorrectResponses + total(falsePositiveResponseCount);
-	var accuracyRate = (!totalResponses) ? 0 : $elm$core$Basics$floor((totalCorrectResponses / totalResponses) * 100);
-	var _v1 = userConfig;
-	var n = _v1.n;
-	var k = _v1.k;
-	var t = _v1.t;
-	return A2(
-		$elm$html$Html$p,
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$class('score')
-			]),
-		_List_fromArray(
-			[
-				$elm$html$Html$text(
-				$elm$core$String$concat(
-					_List_fromArray(
-						[
-							'[ N = ',
-							$elm$core$String$fromInt(n),
-							', ',
-							'K = ',
-							$elm$core$String$fromInt(k),
-							', ',
-							'T = ',
-							A2($myrho$elm_round$Round$round, 2, t),
-							' s ] -- ',
-							'Test Count = ',
-							$elm$core$String$fromInt(
-							total(stimulusTestCount)),
-							', ',
-							'Accuracy Rate = ',
-							$elm$core$String$fromInt(accuracyRate),
-							'%'
-						])))
-			]));
-};
-var $elm$html$Html$span = _VirtualDom_node('span');
 var $author$project$View$incDecField = F7(
 	function (toStr, inc, dec, model, name, msg, val) {
 		var displayed = function (x) {
@@ -10556,6 +10744,16 @@ var $author$project$View$settingsView = function (model) {
 				$author$project$View$startStopButton(model)
 			]));
 };
+var $elm$core$List$singleton = function (value) {
+	return _List_fromArray(
+		[value]);
+};
+var $elm$html$Html$table = _VirtualDom_node('table');
+var $elm$html$Html$tbody = _VirtualDom_node('tbody');
+var $elm$html$Html$td = _VirtualDom_node('td');
+var $elm$html$Html$th = _VirtualDom_node('th');
+var $elm$html$Html$thead = _VirtualDom_node('thead');
+var $elm$html$Html$tr = _VirtualDom_node('tr');
 var $author$project$View$view = function (model) {
 	var playing = ($author$project$Utils$isPlaying(model) && (_Utils_cmp(
 		model.userConfig.n,
@@ -10658,7 +10856,92 @@ var $author$project$View$view = function (model) {
 							[
 								$elm$html$Html$Attributes$class('scores')
 							]),
-						A2($elm$core$List$map, $author$project$View$scoreView, model.scores))
+						_List_fromArray(
+							[
+								A2(
+								$elm$html$Html$table,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$class('scores-table'),
+										A2($elm$html$Html$Attributes$attribute, 'cellpadding', '0'),
+										A2($elm$html$Html$Attributes$attribute, 'cellspacing', '0'),
+										A2($elm$html$Html$Attributes$attribute, 'border', '0')
+									]),
+								_List_fromArray(
+									[
+										A2(
+										$elm$html$Html$thead,
+										_List_Nil,
+										_List_fromArray(
+											[
+												A2(
+												$elm$html$Html$tr,
+												_List_Nil,
+												A2(
+													$elm$core$List$map,
+													A2(
+														$elm$core$Basics$composeL,
+														A2(
+															$elm$core$Basics$composeL,
+															$elm$html$Html$th(_List_Nil),
+															$elm$core$List$singleton),
+														$elm$html$Html$text),
+													_List_fromArray(
+														['N', 'K', 'T', 'Test Count', 'Accuracy', 'Correctness'])))
+											])),
+										A2(
+										$elm$html$Html$tbody,
+										_List_Nil,
+										A2(
+											$elm$core$List$map,
+											function (_v0) {
+												var userConfig = _v0.userConfig;
+												var stimulusTestCount = _v0.stimulusTestCount;
+												var falsePositiveResponseCount = _v0.falsePositiveResponseCount;
+												var falseNegativeResponseCount = _v0.falseNegativeResponseCount;
+												var total = function (_v2) {
+													var sound = _v2.sound;
+													var square = _v2.square;
+													return sound + square;
+												};
+												var totalStimulus = total(stimulusTestCount);
+												var totalCorrectResponses = totalStimulus - total(falseNegativeResponseCount);
+												var totalResponses = totalCorrectResponses + total(falsePositiveResponseCount);
+												var entry = A2(
+													$elm$core$Basics$composeL,
+													A2(
+														$elm$core$Basics$composeL,
+														$elm$html$Html$td(_List_Nil),
+														$elm$core$List$singleton),
+													$elm$html$Html$text);
+												var correctRate = (!totalStimulus) ? 0 : $elm$core$Basics$floor((totalCorrectResponses / totalStimulus) * 100);
+												var accuracyRate = (!totalResponses) ? 0 : $elm$core$Basics$floor((totalCorrectResponses / totalResponses) * 100);
+												var _v1 = userConfig;
+												var n = _v1.n;
+												var k = _v1.k;
+												var t = _v1.t;
+												return A2(
+													$elm$html$Html$tr,
+													_List_Nil,
+													_List_fromArray(
+														[
+															entry(
+															$elm$core$String$fromInt(n)),
+															entry(
+															$elm$core$String$fromInt(k)),
+															entry(
+															A2($myrho$elm_round$Round$round, 2, t)),
+															entry(
+															$elm$core$String$fromInt(totalStimulus)),
+															entry(
+															$elm$core$String$fromInt(accuracyRate) + '%'),
+															entry(
+															$elm$core$String$fromInt(correctRate) + '%')
+														]));
+											},
+											model.scores))
+									]))
+							]))
 					]))
 			]));
 };
@@ -10685,8 +10968,10 @@ var $author$project$Main$main = function () {
 			},
 			audioPort: {fromJS: $author$project$Main$audioPortFromJS, toJS: $author$project$Main$audioPortToJS},
 			init: function (_v1) {
+				var userConfigStr = _v1.a;
+				var scoresStr = _v1.b;
 				return _Utils_Tuple3(
-					$author$project$Main$defaultModel,
+					A2($author$project$Main$defaultModel, userConfigStr, scoresStr),
 					$elm$core$Platform$Cmd$none,
 					$author$project$Audio$cmdBatch(
 						_List_fromArray(
@@ -10711,4 +10996,15 @@ var $author$project$Main$main = function () {
 		});
 }();
 _Platform_export({'Main':{'init':$author$project$Main$main(
-	$elm$json$Json$Decode$succeed(_Utils_Tuple0))(0)}});}(this));
+	A2(
+		$elm$json$Json$Decode$andThen,
+		function (_v0) {
+			return A2(
+				$elm$json$Json$Decode$andThen,
+				function (_v1) {
+					return $elm$json$Json$Decode$succeed(
+						_Utils_Tuple2(_v0, _v1));
+				},
+				A2($elm$json$Json$Decode$index, 1, $elm$json$Json$Decode$string));
+		},
+		A2($elm$json$Json$Decode$index, 0, $elm$json$Json$Decode$string)))(0)}});}(this));
